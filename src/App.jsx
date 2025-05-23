@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 
 function App() {
-  const [amount, setAmount] = useState(1);
+  const [amount, setAmount] = useState();
   const [fromCrypto, setFromCrypto] = useState("bitcoin");
   const [toCurrency, setToCurrency] = useState("usd");
   const [convertedAmount, setConvertedAmount] = useState();
@@ -43,7 +43,7 @@ function App() {
           setError("");
         } else {
           setConvertedAmount(null);
-          setError("داده‌ای برای ارز انتخاب‌شده موجود نیست.");
+          setError("داده‌ای برای ارز انتخاب‌ شده موجود نیست.");
         }
       } catch (err) {
         setConvertedAmount(null);
@@ -89,10 +89,11 @@ function App() {
         {error && <p className="error">{error}</p>}
         {convertedAmount && !error && (
           <p>
-            Converted Amount : {convertedAmount.toFixed(2)} {toCurrency.toUpperCase()}
+            {amount} {fromCrypto} = {convertedAmount.toFixed(2)} {toCurrency.toUpperCase()}
           </p>
         )}
       </div>
+      
     </div>
   );
 }
