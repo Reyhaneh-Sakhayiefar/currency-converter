@@ -1,55 +1,97 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import "./App.css";
 
 function App() {
-  const [amount, setAmount] = useState('');
-  const [fromCurrency, setFromCurrency] = useState('USD');
-  const [toCurrency, setToCurrency] = useState('USD');
-  const [convertedAmount, setConvertedAmount] = useState('');
+  const [amount, setAmount] = useState(1);
+  const [fromCrypto, setFromCrypto] = useState("bitcoin");
+  const [toCurrency, setToCurrency] = useState("usd");
+  const [convertedAmount, setConvertedAmount] = useState();
+  const [error, setError] = useState("");
+
+  const cryptoList = [
+    { id: "bitcoin", name: "Bitcoin" },
+    { id: "ethereum", name: "Ethereum" },
+    { id: "binancecoin", name: "BNB" },
+    { id: "solana", name: "Solana" },
+    { id: "ripple", name: "XRP" },
+    { id: "cardano", name: "Cardano" },
+    { id: "dogecoin", name: "Dogecoin" },
+    { id: "avalanche-2", name: "Avalanche" },
+    { id: "polygon", name: "Polygon (MATIC)" },
+    { id: "polkadot", name: "Polkadot" },
+    { id: "tron", name: "TRON" },
+    { id: "litecoin", name: "Litecoin" },
+    { id: "chainlink", name: "Chainlink" },
+    { id: "uniswap", name: "Uniswap" },
+    { id: "shiba-inu", name: "Shiba Inu" }
+  ];
+
+  const currencies = ["usd", "eur", "jpy", "gbp"];
 
   useEffect(() => {
-    if (amount === '') return;
+    if (!fromCrypto || !toCurrency || !amount) return;
 
-    fetch(`https://api.exchangerate-api.com/v4/latest/${fromCurrency}`)
-      .then(res => res.json())
-      .then(data => {
-        const rate = data.rates[toCurrency];
-        setConvertedAmount((amount * rate).toFixed(2));
-      });
-  }, [amount, fromCurrency, toCurrency]);
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${fromCrypto}&vs_currencies=${toCurrency}`
+        )
+        const data = await res.json();
+
+        if (data && data[fromCrypto] && data[fromCrypto][toCurrency]) {
+          setConvertedAmount(data[fromCrypto][toCurrency] * amount);
+          setError("");
+        } else {
+          setConvertedAmount(null);
+          setError("داده‌ای برای ارز انتخاب‌شده موجود نیست.");
+        }
+      } catch (err) {
+        setConvertedAmount(null);
+        setError("خطا در دریافت اطلاعات از API.");
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, [fromCrypto, toCurrency, amount]);
 
   return (
     <div className="app">
-      <h3 className="title">* Currency Converter *</h3>
+      <h1>Currency Converter</h1>
 
-      <div className="input-group">
+      <div className="form">
         <input
           type="number"
-          placeholder="amount"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          min="0"
+          onChange={(e) => setAmount(Number(e.target.value))}
+          placeholder="Amount"
         />
-        <select value={fromCurrency} onChange={(e) => setFromCurrency(e.target.value)}>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="JPY">JPY</option>
-          <option value="GBP">GBP</option>
+
+        <select value={fromCrypto} onChange={(e) => setFromCrypto(e.target.value)}>
+          {cryptoList.map((crypto) => (
+            <option key={crypto.id} value={crypto.id}>
+              {crypto.name}
+            </option>
+          ))}
+        </select>
+
+        <select value={toCurrency} onChange={(e) => setToCurrency(e.target.value)}>
+          {currencies.map((cur) => (
+            <option key={cur} value={cur}>
+              {cur.toUpperCase()}
+            </option>
+          ))}
         </select>
       </div>
 
-      <div className="input-group">
-        <input
-          type="text"
-          placeholder="converted amount"
-          value={convertedAmount}
-          disabled
-        />
-        <select value={toCurrency} onChange={(e) => setToCurrency(e.target.value)}>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="JPY">JPY</option>
-          <option value="GBP">GBP</option>
-        </select>
+      <div className="result">
+        {error && <p className="error">{error}</p>}
+        {convertedAmount && !error && (
+          <p>
+            Converted Amount : {convertedAmount.toFixed(2)} {toCurrency.toUpperCase()}
+          </p>
+        )}
       </div>
     </div>
   );

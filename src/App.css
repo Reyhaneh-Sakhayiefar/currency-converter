@@ -3,13 +3,6 @@
   text-align: center;
 }
 
-.input-row {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
 input[type="number"],
 input[type="text"],
 select {
@@ -20,9 +13,9 @@ select {
   margin-right: 20px;
 }
 
-.title {
+.app {
   color: rgb(16, 95, 71);
-  font-size: 30px;
+  font-size: 20px;
   margin-bottom: 30px;
 }
 
